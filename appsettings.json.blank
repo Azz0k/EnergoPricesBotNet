@@ -1,0 +1,21 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AppSettings": {
+    "TelegramBotToken": "",
+    "BitrixApiUrl": "https://",
+    "BitrixApiLogin": "username",
+    "BitrixApiPassword": "password",
+    "BackSymbol": "2B05",
+    "HomeSymbol": "2934",
+    "CallBackDataPrefix": "BTN1 ",
+    "CheckIdUrl": "http://",
+    "GreetingText": "Добро пожаловать! Для авторизации нажмите пожалуйста кнопку \"Отправить контакт\".",
+    "SQLConnection": "server=;database=;uid=;pwd=;TrustServerCertificate=True",
+    "HeadID": ""
+  }
+}

@@ -1,0 +1,1 @@
+New-EventLog -Source "EnergoKnownBotService" -LogName "EnergoKnownBotService"
