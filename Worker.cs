@@ -9,7 +9,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace TestWorkerService
+namespace PricesBotWorkerService
 {
     public sealed class WindowsBackgroundService: BackgroundService
     {
@@ -18,12 +18,14 @@ namespace TestWorkerService
         private readonly BotService _botService;
         private  ITelegramBotClient? _botClient;
         private ReceiverOptions? _receiverOptions;
+        private byte[] _dummyBuffer;
 
         public WindowsBackgroundService(IOptions<AppSettings> settings, ILogger<WindowsBackgroundService> logger, BotService botService) 
         {
             _settings = settings.Value;
             _logger = logger;
             _botService = botService;
+            _dummyBuffer = File.ReadAllBytes("DummyPrice.xlsx");
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -70,25 +72,27 @@ namespace TestWorkerService
             if (message.Type == MessageType.Text)
             {
                 var text = message.Text.Trim();
-                if (_botService.isSelected(text)) 
+                if (text == "/start")
                 {
-
-                    await _botClient.SendDocument(user.Id, "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "Каталог "+text);
-
+                    await _botClient.SendTextMessageAsync(user.Id, _settings.FirstGreetingText);
                 }
-                else
+                string brand = "";
+                if (_botService.isCatalogMenuButtonPressed(text))
                 {
-                    await _botClient.SendTextMessageAsync(user.Id,
-                "Здесь можно скачать каталог и прайс. Выберите бренд",
-                replyMarkup: _botService.createBradsMarkup());
+                    brand = _botService.getBrandIfCatalogMenuButtonPressed(text);
+                    await _botClient.SendDocument(user.Id, "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "Каталог " + brand);
                 }
-                
+                else if (_botService.isPriceMenuButtonPressed(text))
+                {
+                    brand = _botService.getBrandIfPriceMenuButtonPressed(text); 
+                    await using var ms = new MemoryStream(_dummyBuffer);
+                    await _botClient.SendDocument(user.Id, InputFile.FromStream(ms, "dummy.xlsx"), "Прайс-лист "+brand);
+                }
+                await _botClient.SendTextMessageAsync(user.Id, _botService.generateReplyText(text), replyMarkup: _botService.generateReplyMarkup(text));
+
             }
             
         }
-
-
- 
         async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             switch (update.Type)

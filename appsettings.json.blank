@@ -14,7 +14,7 @@
     "HomeSymbol": "2934",
     "CallBackDataPrefix": "BTN1 ",
     "CheckIdUrl": "http://",
-    "GreetingText": "Добро пожаловать! Для авторизации нажмите пожалуйста кнопку \"Отправить контакт\".",
+    "GreetingText": "Добро пожаловать! Здесь можно посмотреть каталоги, цены, узнать об акциях и новинках Торгового Дома Энерго",
     "SQLConnection": "server=;database=;uid=;pwd=;TrustServerCertificate=True",
     "HeadID": ""
   }

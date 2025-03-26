@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging.EventLog;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
-using TestWorkerService;
+using PricesBotWorkerService;
 
 
 
@@ -15,15 +15,14 @@ builder.Services.AddWindowsService(options =>
 
 LoggerProviderOptions.RegisterProviderOptions<
     EventLogSettings, EventLogLoggerProvider>(builder.Services);
-//builder.Services.AddDbContext<DBRepository>();
 builder.Services.AddSingleton<BotService>();
 
 builder.Services.AddHostedService<WindowsBackgroundService>();
 builder.Services.AddOptions<AppSettings>().BindConfiguration("AppSettings");
 builder.Services.Configure<EventLogSettings>(config =>
 {
-    config.SourceName = "EnergoKnownBotService";
-    config.LogName = "EnergoKnownBotService";
+    config.SourceName = "EnergoPriceBotService";
+    config.LogName = "EnergoPriceBotService";
 
 });
 IHost host = builder.Build();

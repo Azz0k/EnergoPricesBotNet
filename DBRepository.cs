@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace TestWorkerService
+namespace PricesBotWorkerService
 {
     public class DBRepository : DbContext
     {
@@ -24,7 +24,7 @@ namespace TestWorkerService
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_settings.SQLConnection);
+            //optionsBuilder.UseSqlServer(_settings.SQLConnection);
            // optionsBuilder.LogTo(Console.WriteLine);
         }
  

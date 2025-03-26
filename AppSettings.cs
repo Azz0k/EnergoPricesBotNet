@@ -4,21 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestWorkerService
+namespace PricesBotWorkerService
 {
     public class AppSettings
     {
         public string TelegramBotToken { get; init; } = string.Empty;
-        public string BitrixApiUrl { get; init; } = string.Empty;
-        public string BitrixApiLogin { get; init; } = string.Empty;
-        public string BitrixApiPassword { get; init; } = string.Empty;
-
         public string BackSymbol { get; init; } = string.Empty;
         public string HomeSymbol { get; init; } = string.Empty;
         public string CallBackDataPrefix { get; init; } = string.Empty;
-        public string CheckIdUrl { get; init; } = string.Empty;
-        public string GreetingText { get; init; } = string.Empty;
-        public string SQLConnection { get; init; } = string.Empty;
-        public string HeadId { get; init; } = string.Empty;
+        public string FirstGreetingText { get; init; } = string.Empty;
+        public string FirstMenuLevelGreeting { get; init; } = string.Empty;
+        public string BrandSelectGreeting { get; init; } = string.Empty;
+        public string NotImplementedGreeting { get; init; } = string.Empty;
+        public string PriceOrCatalogGreeting { get; init; } = string.Empty;
     }
 }
