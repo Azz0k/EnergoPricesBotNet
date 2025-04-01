@@ -17,5 +17,6 @@ namespace PricesBotWorkerService
         public string BrandSelectGreeting { get; init; } = string.Empty;
         public string NotImplementedGreeting { get; init; } = string.Empty;
         public string PriceOrCatalogGreeting { get; init; } = string.Empty;
+        public string GoodsSectionGreeting { get; init; } = string.Empty;
     }
 }

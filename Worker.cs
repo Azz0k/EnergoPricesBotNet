@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using EnergoPricesBotNet;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Runtime;
 using System.Threading;
@@ -77,18 +78,19 @@ namespace PricesBotWorkerService
                     await _botClient.SendTextMessageAsync(user.Id, _settings.FirstGreetingText);
                 }
                 string brand = "";
-                if (_botService.isCatalogMenuButtonPressed(text))
+                if (_botService.IsCatalogMenuButtonPressed(text))
                 {
-                    brand = _botService.getBrandIfCatalogMenuButtonPressed(text);
+                    brand = _botService.GetBrandIfCatalogMenuButtonPressed(text);
                     await _botClient.SendDocument(user.Id, "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "Каталог " + brand);
                 }
-                else if (_botService.isPriceMenuButtonPressed(text))
+                else if (_botService.IsPriceMenuButtonPressed(text))
                 {
-                    brand = _botService.getBrandIfPriceMenuButtonPressed(text); 
+                    brand = _botService.GetBrandIfPriceMenuButtonPressed(text); 
                     await using var ms = new MemoryStream(_dummyBuffer);
                     await _botClient.SendDocument(user.Id, InputFile.FromStream(ms, "dummy.xlsx"), "Прайс-лист "+brand);
                 }
-                await _botClient.SendTextMessageAsync(user.Id, _botService.generateReplyText(text), replyMarkup: _botService.generateReplyMarkup(text));
+                BotResponse br = _botService.GenerateResponse(text);
+                await _botClient.SendTextMessageAsync(user.Id, br.messageText, replyMarkup: br.replayMarkup);
 
             }
             
