@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,12 @@ namespace EnergoPricesBotNet
 {
     public class FileStore
     {
-        private Dictionary<string, BrandData>? _brandsAndCodes = null;
-        private Dictionary<string, byte[]>? _codesAndPrices = null;
-        private Dictionary<string, List<CatalogFile>>? _codesAndCatalogs = null;
+        private Dictionary<string, BrandData> _brandsAndCodes = new();
+        public Dictionary<string, byte[]> CodesAndPrices = new();
+        public Dictionary<string, List<CatalogFile>> BrandsAndCatalogsFiles = new();
         private string _priceFilesPath = string.Empty;
         private string _catalogFilesPath = string.Empty;
-        public List<string> FoodBrandNames = new List<string>();
-        public List<string> NonFoodBrandNames = new List<string>();
+        public HashSet<string> BrandNames = new HashSet<string>();
         public FileStore(string priceFilesPath, string catalogFilesPath)
         {
             _priceFilesPath = priceFilesPath;
@@ -44,14 +44,72 @@ namespace EnergoPricesBotNet
                 { "Арматени", new BrandData ("233740") },
                 { "МедЛен", new BrandData ("233615",1) },
             };
-            FoodBrandNames = GetBrandNamesByType(0);
-            NonFoodBrandNames = GetBrandNamesByType(1);
+            BrandNames = GetFullBrandHashSet();
+            UpdatePrices();
+            UpdateCatalogs();
+        }
+        public string GetCodeByBrand(string brandName)
+        {
+            return _brandsAndCodes[brandName].PriceCode;
+        }
+        public void UpdatePrices() 
+        {
+            var temp = new Dictionary<string, byte[]> { };
+            try
+            {
+                DirectoryInfo pricesDir = new DirectoryInfo(_priceFilesPath);
+                foreach (FileInfo file in pricesDir.GetFiles())
+                {
+                    if (file.Name.EndsWith(".xlsx"))
+                    {
+                        string code = file.Name.Substring(0,file.Name.IndexOf('.'));
+                        byte[] buffer = File.ReadAllBytes(file.FullName);
+                        temp[code] = buffer;
+                    }
+                }
+            }
+            finally
+            {
+                CodesAndPrices = temp;
+            }
+            
+        } 
+        public void UpdateCatalogs()
+        {
+            var temp = new Dictionary<string, List<CatalogFile>> { };
+            try
+            {
+                DirectoryInfo catalogsDir = new DirectoryInfo(_catalogFilesPath);
+                foreach (var subDir  in catalogsDir.GetDirectories())
+                {
+                    if (BrandNames.Contains(subDir.Name))
+                    {
+                        temp[subDir.Name] = new List<CatalogFile> { };
+                        foreach (FileInfo file in subDir.GetFiles())
+                        {
+                            if (file.Name.EndsWith(".pdf"))
+                            {
+                                byte[] buffer = File.ReadAllBytes(file.FullName);
+                                var cf = new CatalogFile
+                                {
+                                    FileName = file.Name,
+                                    Data = buffer
+                                };
+                                temp[subDir.Name].Add(cf);
+                            }
+                        }
+                    }
+                    
+                }
+            }
+            finally
+            {
+                BrandsAndCatalogsFiles = temp;   
+            }
         }
         public List<string> GetBrandNamesByType(byte type)
         {
             var res = new List<string>();
-            if (_brandsAndCodes == null)
-                return res;
             foreach (var entry in _brandsAndCodes)
             {
                 if (entry.Value.Type == type)
@@ -61,9 +119,9 @@ namespace EnergoPricesBotNet
             }
             return res;
         }
-        public HashSet<string>? GetFullBrandHashSet()
+        private HashSet<string> GetFullBrandHashSet()
         {
-            return _brandsAndCodes?.Keys.ToHashSet();
+            return _brandsAndCodes.Keys.ToHashSet();
         }
 
     }

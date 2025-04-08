@@ -48,8 +48,10 @@ namespace PricesBotWorkerService
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     await Task.Delay(1000, stoppingToken);
-                    if (++timer == 60*60) 
+                    if (++timer == 60) 
                     {
+                        _botService.UpdateFiles();
+                        _logger.LogWarning("The data is updated");
                         timer = 0;
                     }
 
@@ -77,17 +79,24 @@ namespace PricesBotWorkerService
                 {
                     await _botClient.SendTextMessageAsync(user.Id, _settings.FirstGreetingText);
                 }
-                string brand = "";
+                string brandName = "";
                 if (_botService.IsCatalogMenuButtonPressed(text))
                 {
-                    brand = _botService.GetBrandIfCatalogMenuButtonPressed(text);
-                    await _botClient.SendDocument(user.Id, "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "Каталог " + brand);
+                    brandName = _botService.GetBrandIfCatalogMenuButtonPressed(text);
+                    var  catalogFilesList = _botService.GetCatalogFileListByBrandName(brandName);
+                    foreach(var file in catalogFilesList)
+                    {
+                        await using MemoryStream memoryStream = new MemoryStream(file.Data);
+                        await _botClient.SendDocument(user.Id, InputFile.FromStream(memoryStream, file.FileName), "Каталог " + brandName);
+                    }
+                    //await _botClient.SendDocument(user.Id, "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "Каталог " + brandName);
                 }
                 else if (_botService.IsPriceMenuButtonPressed(text))
                 {
-                    brand = _botService.GetBrandIfPriceMenuButtonPressed(text); 
-                    await using var ms = new MemoryStream(_dummyBuffer);
-                    await _botClient.SendDocument(user.Id, InputFile.FromStream(ms, "dummy.xlsx"), "Прайс-лист "+brand);
+                    brandName = _botService.GetBrandIfPriceMenuButtonPressed(text); 
+
+                    await using var ms = new MemoryStream(_botService.GetPriceFileBufferByBrand(brandName));
+                    await _botClient.SendDocument(user.Id, InputFile.FromStream(ms, $"{brandName}.xlsx"), "Прайс-лист "+brandName);
                 }
                 BotResponse br = _botService.GenerateResponse(text);
                 await _botClient.SendTextMessageAsync(user.Id, br.messageText, replyMarkup: br.replayMarkup);

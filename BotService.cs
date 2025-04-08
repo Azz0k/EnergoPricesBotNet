@@ -18,6 +18,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 using PricesBotWorkerService;
 using static System.Formats.Asn1.AsnWriter;
 using EnergoPricesBotNet;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace PricesBotWorkerService
 {
@@ -26,19 +27,22 @@ namespace PricesBotWorkerService
 
         private IServiceProvider _serviceProvider;
         private ILogger<WindowsBackgroundService> _logger;
-        private HashSet<string> _brandNames = new HashSet<string>();
+        //private HashSet<string> _brandNames = new HashSet<string>();
         private AppSettings _settings;
         public bool isDataReceived = false;
-        private string[] _menuNames = new string[] { "Посмотреть каталог продукции", "Акции, распродажи", "Новинки" };
-        private string[] _foodOrNonFoodMenu = new string[] { "Продукты питания", "Товары нон-фуд" };
+        private readonly string[] _menuNames = new string[] { "Посмотреть каталог продукции", "Акции, распродажи", "Новинки" };
+        private readonly string[] _foodOrNonFoodMenu = new string[] { "Продукты питания", "Товары нон-фуд" };
+        private FileStore _fileStore;
         public BotService(IOptions<AppSettings> settings, ILogger<WindowsBackgroundService> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _settings = settings.Value;
             _serviceProvider = serviceProvider;
-            InitializeMockBrandsSet();
-        }
+            //InitializeMockBrandsSet();
+            _fileStore = new FileStore(_settings.PriceFilesPath, _settings.CatalogFilesPath);
 
+        }
+        /*
         public void InitializeMockBrandsSet()
         {
             _brandNames = new HashSet<string>() 
@@ -65,9 +69,15 @@ namespace PricesBotWorkerService
             };
             
         }
+        */
         public string[][] CreateBrandsMarkup()
         {
-            string[][] buttons = _brandNames.Select(item => new string[] { item }).ToArray();
+            string[][] buttons = _fileStore.BrandNames.Select(item => new string[] { item }).ToArray();
+            return buttons;
+        }
+        public string[][] CreateBrandsMarkupByType(byte type)
+        {
+            string[][] buttons = _fileStore.GetBrandNamesByType(type).Select(item => new string[] { item }).ToArray();
             return buttons;
         }
         public string[][] CreateFoodOrNonFoodMarkup()
@@ -106,10 +116,19 @@ namespace PricesBotWorkerService
             }
             return "";
         }
+        public byte[] GetPriceFileBufferByBrand(string brandName)
+        {
+            string code = _fileStore.GetCodeByBrand(brandName);
+            return _fileStore.CodesAndPrices[code];
+        }
+        public List<CatalogFile> GetCatalogFileListByBrandName(string brandName)
+        {
+            return _fileStore.BrandsAndCatalogsFiles[brandName];
+        }
 
         public bool IsBrandSelected(string text)
         {
-            return _brandNames.Contains(text);
+            return _fileStore.BrandNames.Contains(text);
         }
         public bool IsFirstMenuButtonPressed(string text)
         {
@@ -132,7 +151,7 @@ namespace PricesBotWorkerService
         {
             return new string[][] { ["Получить каталог " + text], ["Получить Прайс-лист " + text] };
         }
-         public BotResponse GenerateResponse(string text)
+        public BotResponse GenerateResponse(string text)
         {
 
             if (IsFirstMenuButtonPressed(text))
@@ -144,15 +163,25 @@ namespace PricesBotWorkerService
                 }
                 return new BotResponse(_settings.NotImplementedGreeting, CreateFirstMenuLevel());
             }
-            if (IsFoodSelected(text) || IsNonFoodSelected(text))
+            if (IsFoodSelected(text))
             {
-                return new BotResponse(_settings.BrandSelectGreeting, CreateBrandsMarkup());
+                return new BotResponse(_settings.BrandSelectGreeting, CreateBrandsMarkupByType(0));
             }
+            if (IsNonFoodSelected(text))
+            {
+                return new BotResponse(_settings.BrandSelectGreeting, CreateBrandsMarkupByType(1));
+            }
+
             if (IsBrandSelected(text))
             {
                 return new BotResponse(_settings.PriceOrCatalogGreeting, CreatePriceOrCatalogMarkup(text));
             }
             return new BotResponse(_settings.FirstMenuLevelGreeting, CreateFirstMenuLevel());
+        }
+        public void UpdateFiles()
+        {
+            _fileStore.UpdatePrices();
+            _fileStore.UpdateCatalogs();
         }
 
 
