@@ -19,14 +19,14 @@ namespace PricesBotWorkerService
         private readonly BotService _botService;
         private  ITelegramBotClient? _botClient;
         private ReceiverOptions? _receiverOptions;
-        private byte[] _dummyBuffer;
+       // private byte[] _dummyBuffer;
 
         public WindowsBackgroundService(IOptions<AppSettings> settings, ILogger<WindowsBackgroundService> logger, BotService botService) 
         {
             _settings = settings.Value;
             _logger = logger;
             _botService = botService;
-            _dummyBuffer = File.ReadAllBytes("DummyPrice.xlsx");
+            //_dummyBuffer = File.ReadAllBytes("DummyPrice.xlsx");
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

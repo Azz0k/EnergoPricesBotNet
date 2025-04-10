@@ -39,7 +39,7 @@ namespace PricesBotWorkerService
             _settings = settings.Value;
             _serviceProvider = serviceProvider;
             //InitializeMockBrandsSet();
-            _fileStore = new FileStore(_settings.PriceFilesPath, _settings.CatalogFilesPath);
+            _fileStore = new FileStore(_settings.PriceFilesPath, _settings.CatalogFilesPath, _settings.Brands);
 
         }
         /*

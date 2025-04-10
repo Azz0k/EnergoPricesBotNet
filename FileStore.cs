@@ -16,11 +16,15 @@ namespace EnergoPricesBotNet
         private string _priceFilesPath = string.Empty;
         private string _catalogFilesPath = string.Empty;
         public HashSet<string> BrandNames = new HashSet<string>();
-        public FileStore(string priceFilesPath, string catalogFilesPath)
+        public FileStore(string priceFilesPath, string catalogFilesPath, Dictionary<string, BrandData> brandsAndCodes)
         {
             _priceFilesPath = priceFilesPath;
             _catalogFilesPath = catalogFilesPath;
-            Initilizer();
+            _brandsAndCodes = brandsAndCodes;
+            BrandNames = GetFullBrandHashSet();
+            UpdatePrices();
+            UpdateCatalogs();
+            //Initilizer();
         }
         private void Initilizer()
         {
@@ -44,9 +48,6 @@ namespace EnergoPricesBotNet
                 { "Арматени", new BrandData ("233740") },
                 { "МедЛен", new BrandData ("233615",1) },
             };
-            BrandNames = GetFullBrandHashSet();
-            UpdatePrices();
-            UpdateCatalogs();
         }
         public string GetCodeByBrand(string brandName)
         {

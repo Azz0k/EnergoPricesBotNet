@@ -25,5 +25,10 @@ builder.Services.Configure<EventLogSettings>(config =>
     config.LogName = "EnergoPriceBotService";
 
 });
+var BrandsConfigFile = builder.Configuration.GetValue<string>("AppSettings:BrandsConfigFile");
+if (string.IsNullOrEmpty(BrandsConfigFile) || !File.Exists(BrandsConfigFile))
+    Environment.Exit(1);
+builder.Configuration.AddJsonFile(BrandsConfigFile,optional: false, reloadOnChange: true);
+//builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 IHost host = builder.Build();
 host.Run();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EnergoPricesBotNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,8 +18,12 @@ namespace PricesBotWorkerService
         public string BrandSelectGreeting { get; init; } = string.Empty;
         public string NotImplementedGreeting { get; init; } = string.Empty;
         public string PriceOrCatalogGreeting { get; init; } = string.Empty;
-        public string GoodsSectionGreeting { get; init; } = string.Empty; 
+        public string GoodsSectionGreeting { get; init; } = string.Empty;
         public string CatalogFilesPath { get; init; } = string.Empty;
         public string PriceFilesPath { get; init; } = string.Empty;
+        public string BrandsConfigFile { get; init; } = string.Empty;
+        public Dictionary<string, BrandData> Brands { get; init; } = new() { };
     }
+
+
 }
