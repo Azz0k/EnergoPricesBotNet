@@ -180,8 +180,15 @@ namespace PricesBotWorkerService
         }
         public void UpdateFiles()
         {
-            _fileStore.UpdatePrices();
-            _fileStore.UpdateCatalogs();
+            if (!_fileStore.UpdatePrices())
+            {
+                _logger.LogCritical("Prices is NOT updated!!!");
+            }
+            if (!_fileStore.UpdateCatalogs())
+            {
+                _logger.LogCritical("Catalogs is NOT updated!!!");
+            }
+            
         }
 
 

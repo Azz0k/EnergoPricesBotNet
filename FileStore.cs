@@ -22,38 +22,14 @@ namespace EnergoPricesBotNet
             _catalogFilesPath = catalogFilesPath;
             _brandsAndCodes = brandsAndCodes;
             BrandNames = GetFullBrandHashSet();
-            UpdatePrices();
             UpdateCatalogs();
-            //Initilizer();
+            UpdatePrices();
         }
-        private void Initilizer()
-        {
-            _brandsAndCodes = new Dictionary<string, BrandData>()
-            {
-                { "Сады Придонья", new BrandData ("56801") },
-                { "Бунге", new BrandData ("138346") },
-                { "Перфиса", new BrandData ("236967", 1) },
-                { "Валдайский погребок", new BrandData ("35379") },
-                { "Знаток", new BrandData ("168157") },
-                { "НМЖК", new BrandData ("139386") },
-                { "Кубаночка", new BrandData ("232741") },
-                { "Хайнц", new BrandData ("8395") },
-                { "Казанский жировой комбинат", new BrandData ("237557") },
-                { "Пиканта", new BrandData ("46497") },
-                { "Мираторг", new BrandData ("226874") },
-                { "Московская кофейня на паях", new BrandData ("224064") },
-                { "Норма жизни (Восход)", new BrandData ("233579") },
-                { "РУМЯНОЧКА", new BrandData ("237551") },
-                { "Русский продукт", new BrandData ("233027") },
-                { "Арматени", new BrandData ("233740") },
-                { "МедЛен", new BrandData ("233615",1) },
-            };
-        }
-        public string GetCodeByBrand(string brandName)
+          public string GetCodeByBrand(string brandName)
         {
             return _brandsAndCodes[brandName].PriceCode;
         }
-        public void UpdatePrices() 
+        public bool UpdatePrices() 
         {
             var temp = new Dictionary<string, byte[]> { };
             try
@@ -63,19 +39,21 @@ namespace EnergoPricesBotNet
                 {
                     if (file.Name.EndsWith(".xlsx"))
                     {
-                        string code = file.Name.Substring(0,file.Name.IndexOf('.'));
+                        string code = file.Name.Substring(0, file.Name.IndexOf('.'));
                         byte[] buffer = File.ReadAllBytes(file.FullName);
                         temp[code] = buffer;
                     }
                 }
             }
-            finally
-            {
-                CodesAndPrices = temp;
+            catch (Exception e)
+            { 
+                return false;
             }
+            CodesAndPrices = temp;
+            return true;    
             
         } 
-        public void UpdateCatalogs()
+        public bool UpdateCatalogs()
         {
             var temp = new Dictionary<string, List<CatalogFile>> { };
             try
@@ -103,10 +81,12 @@ namespace EnergoPricesBotNet
                     
                 }
             }
-            finally
+            catch (Exception e)
             {
-                BrandsAndCatalogsFiles = temp;   
+                return false;
             }
+            BrandsAndCatalogsFiles = temp;
+            return true;
         }
         public List<string> GetBrandNamesByType(byte type)
         {

@@ -1,6 +1,7 @@
 ﻿using EnergoPricesBotNet;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using System.Runtime;
 using System.Threading;
 using Telegram.Bot;
@@ -51,7 +52,6 @@ namespace PricesBotWorkerService
                     if (++timer == 60) 
                     {
                         _botService.UpdateFiles();
-                        _logger.LogWarning("The data is updated");
                         timer = 0;
                     }
 

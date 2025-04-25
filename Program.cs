@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using PricesBotWorkerService;
+using System.Diagnostics;
 
 
 
@@ -25,6 +26,10 @@ builder.Services.Configure<EventLogSettings>(config =>
     config.LogName = "EnergoPriceBotService";
 
 });
+if (!EventLog.SourceExists("EnergoPriceBotService"))
+{
+    EventLog.CreateEventSource("EnergoPriceBotService", "EnergoPriceBotService");
+}
 var BrandsConfigFile = builder.Configuration.GetValue<string>("AppSettings:BrandsConfigFile");
 if (string.IsNullOrEmpty(BrandsConfigFile) || !File.Exists(BrandsConfigFile))
     Environment.Exit(1);
