@@ -23,6 +23,10 @@ namespace PricesBotWorkerService
         public string PriceFilesPath { get; init; } = string.Empty;
         public string BrandsConfigFile { get; init; } = string.Empty;
         public Dictionary<string, BrandData> Brands { get; init; } = new() { };
+        public string ProxyURL { get; init; } = string.Empty;
+        public string ProxyLogin { get; init; } = string.Empty;
+        public string ProxyPassword { get; init; } = string.Empty;
+
     }
 
 

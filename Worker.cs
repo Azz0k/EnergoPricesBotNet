@@ -10,6 +10,8 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using System.Net;
+using System.Net.Http;
 
 namespace PricesBotWorkerService
 {
@@ -33,9 +35,28 @@ namespace PricesBotWorkerService
         {
             try
             {
+                _logger.LogCritical(_settings.ProxyURL);
+
+
+                if (_settings.ProxyURL != string.Empty)
+                {
+                    _logger.LogCritical("test");
+                    WebProxy proxy = new(_settings.ProxyURL)
+                    {
+                        Credentials = new NetworkCredential(_settings.ProxyLogin, _settings.ProxyPassword)
+                    };
+                    HttpClient httpClient = new(
+                        new SocketsHttpHandler { Proxy = proxy, UseProxy = true, }
+                    );
+                    _botClient = new TelegramBotClient(_settings.TelegramBotToken, httpClient);
+                }
+                else
+                {
+                    _botClient = new TelegramBotClient(_settings.TelegramBotToken);
+                }
+
                 _logger.LogCritical("Service started");
-                _botClient = new TelegramBotClient(_settings.TelegramBotToken);
-                _receiverOptions = new ReceiverOptions
+                                _receiverOptions = new ReceiverOptions
                 {
                     AllowedUpdates = new[]
                     {
