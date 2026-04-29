@@ -35,12 +35,9 @@ namespace PricesBotWorkerService
         {
             try
             {
-                _logger.LogCritical(_settings.ProxyURL);
-
-
                 if (_settings.ProxyURL != string.Empty)
                 {
-                    _logger.LogCritical("test");
+
                     WebProxy proxy = new(_settings.ProxyURL)
                     {
                         Credentials = new NetworkCredential(_settings.ProxyLogin, _settings.ProxyPassword)
